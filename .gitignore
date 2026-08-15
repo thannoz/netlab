@@ -1,0 +1,11 @@
+# Binaries
+*.exe
+*.out
+bin/
+
+# Test
+*.test
+coverage.out
+
+# Editor
+.DS_Store

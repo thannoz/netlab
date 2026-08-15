@@ -1,45 +1,45 @@
-# netlab — Netzwerk-Programmierung in Go, von Grund auf selbst gebaut
+# netlab — Network programming in Go, built from scratch
 
-Eine Lern-Reise: von rohen TCP-Sockets bis zu einem API Gateway — **jedes Feature
-selbst implementiert**, um im Kern zu verstehen, was darunter passiert.
+A learning journey: from raw TCP sockets to an API gateway — **every feature
+implemented by hand**, to truly understand what happens underneath.
 
-> Leitprinzip: Ich baue jedes Projekt selbst. Bibliotheken benutze ich erst,
-> wenn ich verstanden habe, was sie intern tun.
+> Guiding principle: I build each project myself. I only reach for libraries
+> once I understand what they do internally.
 
-## Der rote Faden
+## The through-line
 
-Jede Stufe baut auf der vorigen auf:
+Each stage builds on the previous one:
 
-| # | Projekt | Neue Kernidee | Trifft Interesse |
+| # | Project | New core idea | Matches interest |
 |---|---------|---------------|------------------|
-| 01 | [TCP Echo](01-tcp-echo.md) | Sockets: Verbindung, Bytes lesen/schreiben | Netzwerk-Basis |
-| 02 | [Chat-Server](02-chat-server.md) | Viele Clients gleichzeitig | Nebenläufigkeit |
-| 03 | [Protokoll & Framing](03-protocol-framing.md) | Wo endet eine Nachricht? | Low-level, Bytes |
-| 04 | [HTTP von Hand](04-http-from-scratch.md) | HTTP ist nur Text über TCP | „unter der Haube" |
-| 05 | [File-Server](05-file-server.md) | Dateien streamen & ausliefern | Files, I/O |
-| 06 | [Reverse Proxy](06-reverse-proxy.md) | Requests weiterreichen | Proxy |
-| 07 | [Load Balancer](07-load-balancer.md) | Last auf N Backends verteilen | Load Balancer |
-| 08 | [API Gateway](08-api-gateway.md) | Routing + Middleware | API Gateway, Server |
+| 01 | [TCP Echo](01-tcp-echo.md) | Sockets: connect, read/write bytes | Networking basics |
+| 02 | [Chat server](02-chat-server.md) | Many clients at once | Concurrency |
+| 03 | [Protocol & framing](03-protocol-framing.md) | Where does a message end? | Low-level, bytes |
+| 04 | [HTTP by hand](04-http-from-scratch.md) | HTTP is just text over TCP | "under the hood" |
+| 05 | [File server](05-file-server.md) | Stream & serve files | Files, I/O |
+| 06 | [Reverse proxy](06-reverse-proxy.md) | Forwarding requests | Proxy |
+| 07 | [Load balancer](07-load-balancer.md) | Spread load across N backends | Load balancer |
+| 08 | [API gateway](08-api-gateway.md) | Routing + middleware | API gateway, servers |
 
-Am Ende: **Capstones** — die großen End-Projekte → [capstones.md](capstones.md)
+At the end: **capstones** — the big final projects → [capstones.md](capstones.md)
 
-## Grundlagen-Literatur (begleitend zu allen Stufen)
+## Foundational reading (companion to every stage)
 
-- **Alan Donovan & Brian Kernighan — „The Go Programming Language"** — das Go-Buch.
-  Kap. 8 (Goroutines & Channels) enthält sogar einen Chat-Server.
-- **Adam Woodbeck — „Network Programming with Go"** (Manning, 2021) — DAS Buch für
-  genau diese Reise. Sockets, TCP, HTTP, Proxies — alles in Go.
-- **Beej's Guide to Network Programming** (kostenlos online) — der Klassiker zu
-  Sockets. In C geschrieben, aber die Konzepte gelten überall.
-- **Kurose & Ross — „Computer Networking: A Top-Down Approach"** — die Theorie
-  hinter allem (Schichtenmodell, TCP/IP, HTTP).
+- **Alan Donovan & Brian Kernighan — "The Go Programming Language"** — the Go book.
+  Ch. 8 (Goroutines & Channels) even includes a chat server.
+- **Adam Woodbeck — "Network Programming with Go"** (Manning, 2021) — THE book for
+  exactly this journey. Sockets, TCP, HTTP, proxies — all in Go.
+- **Beej's Guide to Network Programming** (free online) — the classic on sockets.
+  Written in C, but the concepts apply everywhere.
+- **Kurose & Ross — "Computer Networking: A Top-Down Approach"** — the theory
+  behind it all (layering model, TCP/IP, HTTP).
 
-## Meta-Ressourcen
+## Meta resources
 
-- **„Build Your Own X"** (GitHub-Liste) — Anleitungen, X selbst nachzubauen.
-- **CodeCrafters** (kostenpflichtig) — geführte „Build your own Redis/HTTP/…"-Challenges.
+- **"Build Your Own X"** (GitHub list) — guides to rebuilding X yourself.
+- **CodeCrafters** (paid) — guided "Build your own Redis/HTTP/…" challenges.
 
-## Struktur
+## Structure
 
-Jede Stufe lebt in ihrem eigenen Unterordner mit eigenem `main`-Paket unter dem
-Modul `github.com/thannoz/netlab`.
+Each stage lives in its own subdirectory with its own `main` package, under the
+module `github.com/thannoz/netlab`.

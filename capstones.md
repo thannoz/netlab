@@ -1,72 +1,72 @@
-# Capstones — die großen End-Projekte
+# Capstones — the big final projects
 
-Wenn die Basis (Stufen 01–08) sitzt, kannst du auf richtig beeindruckende
-Projekte zielen. Jedes davon ist portfolio-tauglich und eigenes Repo wert.
-
----
-
-## 🗄️ Mini-Redis — In-Memory Key-Value-Store
-
-Ein eigener Redis-Klon: `SET`, `GET`, `DEL` über ein eigenes Protokoll, viele
-gleichzeitige Clients, optional Persistenz auf Platte.
-
-**Nutzt:** Networking (01) + Nebenläufigkeit (02) + Protokoll/Framing (03) + Files (05).
-
-**Literatur:**
-- **RESP-Protokoll-Spezifikation** (redis.io → „Protocol specification") — Redis'
-  Draht-Protokoll, erstaunlich simpel.
-- **Josiah Carlson — „Redis in Action"** — wie Redis denkt.
-- **CodeCrafters „Build Your Own Redis"** — geführte Challenge (Go-Track).
+Once the foundation (stages 01–08) is solid, you can aim at genuinely impressive
+projects. Each of these is portfolio-worthy and deserves its own repo.
 
 ---
 
-## 🧲 BitTorrent-Client
+## 🗄️ Mini-Redis — in-memory key-value store
 
-Echtes **Peer-to-Peer**: eine `.torrent`-Datei lesen, den Tracker fragen, sich
-mit anderen Peers verbinden und Datei-Stücke tauschen, bis die Datei komplett ist.
+Your own Redis clone: `SET`, `GET`, `DEL` over a custom protocol, many
+concurrent clients, optional persistence to disk.
 
-**Nutzt:** alles — Sockets, Protokoll, Nebenläufigkeit, Files. Der Klassiker für
-„ich verstehe Netzwerke jetzt wirklich", und macht enorm Spaß.
+**Uses:** networking (01) + concurrency (02) + protocol/framing (03) + files (05).
 
-**Literatur:**
-- **Jesse Li — „Building a BitTorrent client from the ground up in Go"** (Blogpost)
-  — die perfekte, komplette Anleitung.
-- **BitTorrent-Spezifikation BEP 3** (bittorrent.org) — das offizielle Protokoll.
-
----
-
-## 🔀 NGINX-lite — Reverse Proxy + Load Balancer
-
-Deine Stufen 06+07 zu etwas Benutzbarem ausgebaut: Config-Datei, TLS/HTTPS,
-Health-Checks, Metriken, Zugriffs-Logs.
-
-**Literatur:**
-- **NGINX-Doku** (Architektur, Reverse Proxy, Load Balancing).
-- **Woodbeck, Kap. 9–10** + Go `crypto/tls`.
+**Reading:**
+- **RESP protocol specification** (redis.io → "Protocol specification") — Redis'
+  wire protocol, surprisingly simple.
+- **Josiah Carlson — "Redis in Action"** — how Redis thinks.
+- **CodeCrafters "Build Your Own Redis"** — guided challenge (Go track).
 
 ---
 
-## 🐳 Mini-Docker (später — Linux nötig)
+## 🧲 BitTorrent client
 
-Container von Grund auf: Prozess-Isolation mit **Linux Namespaces**,
-Ressourcen-Limits mit **cgroups**, eigenes Root-Filesystem. Braucht Linux (auf
-dem Mac: VM). Networking hast du dann schon drauf.
+Real **peer-to-peer**: read a `.torrent` file, ask the tracker, connect to other
+peers and swap file pieces until the file is complete.
 
-**Literatur:**
-- **Liz Rice — „Containers From Scratch"** (Vortrag + Code, in Go).
-- **Liz Rice — „Container Security"** (Buch).
-- Artikel: „Building a container in less than 100 lines of Go".
+**Uses:** everything — sockets, protocol, concurrency, files. The classic for
+"I really understand networks now," and enormous fun.
+
+**Reading:**
+- **Jesse Li — "Building a BitTorrent client from the ground up in Go"** (blog post)
+  — the perfect, complete walkthrough.
+- **BitTorrent specification BEP 3** (bittorrent.org) — the official protocol.
 
 ---
 
-## 🌐 Verteilter KV-Store mit Replikation (mini-etcd) — der Endgegner
+## 🔀 NGINX-lite — reverse proxy + load balancer
 
-Mehrere Server, die sich trotz Ausfällen auf denselben Zustand einigen —
-**Consensus** mit dem Raft-Algorithmus. Distributed Systems in Reinform.
+Your stages 06+07 built out into something usable: config file, TLS/HTTPS,
+health checks, metrics, access logs.
 
-**Literatur:**
-- **Diego Ongaro & John Ousterhout — „In Search of an Understandable Consensus
-  Algorithm (Raft)"** — das Paper. Plus raft.github.io (Visualisierung!).
-- **Martin Kleppmann — „Designing Data-Intensive Applications"** — das beste Buch
-  über verteilte Systeme, Punkt.
-- **MIT 6.824 Distributed Systems** — Vorlesungen + Labs, kostenlos online.
+**Reading:**
+- **NGINX docs** (architecture, reverse proxy, load balancing).
+- **Woodbeck, ch. 9–10** + Go `crypto/tls`.
+
+---
+
+## 🐳 Mini-Docker (later — needs Linux)
+
+Containers from scratch: process isolation with **Linux namespaces**, resource
+limits with **cgroups**, your own root filesystem. Needs Linux (on a Mac: a VM).
+You'll already have the networking down by then.
+
+**Reading:**
+- **Liz Rice — "Containers From Scratch"** (talk + code, in Go).
+- **Liz Rice — "Container Security"** (book).
+- Article: "Building a container in less than 100 lines of Go".
+
+---
+
+## 🌐 Distributed KV store with replication (mini-etcd) — the final boss
+
+Multiple servers that agree on the same state despite failures — **consensus**
+with the Raft algorithm. Distributed systems in their purest form.
+
+**Reading:**
+- **Diego Ongaro & John Ousterhout — "In Search of an Understandable Consensus
+  Algorithm (Raft)"** — the paper. Plus raft.github.io (visualization!).
+- **Martin Kleppmann — "Designing Data-Intensive Applications"** — the best book
+  on distributed systems, period.
+- **MIT 6.824 Distributed Systems** — lectures + labs, free online.

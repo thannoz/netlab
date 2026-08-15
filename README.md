@@ -12,14 +12,14 @@ Each stage builds on the previous one:
 
 | # | Project | New core idea | Matches interest |
 |---|---------|---------------|------------------|
-| 01 | [TCP Echo](01-tcp-echo.md) | Sockets: connect, read/write bytes | Networking basics |
-| 02 | [Chat server](02-chat-server.md) | Many clients at once | Concurrency |
-| 03 | [Protocol & framing](03-protocol-framing.md) | Where does a message end? | Low-level, bytes |
-| 04 | [HTTP by hand](04-http-from-scratch.md) | HTTP is just text over TCP | "under the hood" |
-| 05 | [File server](05-file-server.md) | Stream & serve files | Files, I/O |
-| 06 | [Reverse proxy](06-reverse-proxy.md) | Forwarding requests | Proxy |
-| 07 | [Load balancer](07-load-balancer.md) | Spread load across N backends | Load balancer |
-| 08 | [API gateway](08-api-gateway.md) | Routing + middleware | API gateway, servers |
+| 01 | TCP Echo | Sockets: connect, read/write bytes | Networking basics |
+| 02 | Chat server | Many clients at once | Concurrency |
+| 03 | Protocol & framing | Where does a message end? | Low-level, bytes |
+| 04 | HTTP by hand | HTTP is just text over TCP | "under the hood" |
+| 05 | File server | Stream & serve files | Files, I/O |
+| 06 | Reverse proxy | Forwarding requests | Proxy |
+| 07 | Load balancer | Spread load across N backends | Load balancer |
+| 08 | API gateway | Routing + middleware | API gateway, servers |
 
 At the end: **capstones** — the big final projects → [capstones.md](capstones.md)
 

@@ -13,7 +13,7 @@ func main() {
 	}
 	defer listener.Close()
 
-	log.Printf("Echo-Server lauscht auf %s", listener.Addr())
+	log.Printf("Echo server listening on %s", listener.Addr())
 
 	for {
 		conn, err := listener.Accept()
@@ -37,7 +37,7 @@ func handleConn(conn net.Conn) {
 			}
 			return
 		}
-		log.Printf("Empfangen: %q", buf[:n])
+		log.Printf("received: %q", buf[:n])
 
 		_, err = conn.Write(buf[:n])
 		if err != nil {

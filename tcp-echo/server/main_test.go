@@ -43,6 +43,6 @@ func TestEchoServer(t *testing.T) {
 	}
 
 	if !bytes.Equal(payload, got) {
-		t.Errorf("Echo falsch: gesendet %q, empfangen %q", payload, got)
+		t.Errorf("Echo: send %q, received %q", payload, got)
 	}
 }

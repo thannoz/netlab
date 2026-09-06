@@ -2,6 +2,8 @@ package server
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io"
 	"net"
 	"sync"
@@ -263,5 +265,232 @@ func TestBroadcastDoesNotSendToSender(t *testing.T) {
 	}
 	if netErr, ok := err.(net.Error); !ok || !netErr.Timeout() {
 		t.Fatalf("reading sender: got %v, want timeout", err)
+	}
+}
+
+func TestHandleConnReadOneMessage(t *testing.T) {
+	serverA, clientA := net.Pipe()
+	serverB, clientB := net.Pipe()
+	server := New(nil)
+
+	defer func() {
+		serverA.Close()
+		serverB.Close()
+		clientB.Close()
+	}()
+
+	server.add(serverB)
+
+	buf := make([]byte, 6)
+	gotMessage := make(chan string, 1)
+	errs := make(chan error, 1)
+	done := make(chan struct{})
+
+	go func() {
+		_, err := io.ReadFull(clientB, buf)
+		if err != nil {
+			errs <- err
+			return
+		}
+		gotMessage <- string(buf)
+	}()
+
+	go func() {
+		server.handleConn(serverA)
+		close(done)
+	}()
+
+	_, err := clientA.Write([]byte("hello\n"))
+	if err != nil {
+		t.Fatalf("writing sender message: %v", err)
+	}
+
+	wantMessage := "hello\n"
+	select {
+	case err := <-errs:
+		t.Fatalf("reading recipient message: %v", err)
+	case message := <-gotMessage:
+		if message != wantMessage {
+			t.Errorf("message: got %q, want %q", message, wantMessage)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed out waiting for recipient message")
+	}
+
+	if err := clientA.Close(); err != nil {
+		t.Fatalf("closing sender: %v", err)
+	}
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handleConn did not terminate")
+	}
+}
+
+func TestHandleConnReadsMultipleMessages(t *testing.T) {
+	serverA, clientA := net.Pipe()
+	serverB, clientB := net.Pipe()
+	defer func() {
+		serverA.Close()
+		serverB.Close()
+		clientA.Close()
+		clientB.Close()
+	}()
+
+	server := New(nil)
+	server.add(serverB)
+
+	want := []byte("hello\nworld\n")
+	gotMessage := make(chan []byte, 1)
+	readErr := make(chan error, 1)
+	done := make(chan struct{})
+
+	go func() {
+		buf := make([]byte, len(want))
+		_, err := io.ReadFull(clientB, buf)
+		if err != nil {
+			readErr <- err
+			return
+		}
+		gotMessage <- buf
+	}()
+
+	go func() {
+		server.handleConn(serverA)
+		close(done)
+	}()
+
+	if _, err := clientA.Write(want); err != nil {
+		t.Fatalf("writing messages: %v", err)
+	}
+	_ = clientA.Close()
+
+	select {
+	case err := <-readErr:
+		t.Fatalf("reading messages: %v", err)
+	case message := <-gotMessage:
+		if !bytes.Equal(message, want) {
+			t.Errorf("messages: got %q, want %q", message, want)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed out waiting for messages")
+	}
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handleConn did not terminate")
+	}
+}
+
+func TestHandleConnRemovesConnection(t *testing.T) {
+	serverA, clientA := net.Pipe()
+	defer func() {
+		serverA.Close()
+		clientA.Close()
+	}()
+
+	server := New(nil)
+	done := make(chan struct{})
+
+	go func() {
+		server.handleConn(serverA)
+		close(done)
+	}()
+
+	_ = clientA.Close()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handleConn did not terminate")
+	}
+
+	if _, exists := server.clients[serverA]; exists {
+		t.Error("server.clients still contains the closed connection")
+	}
+}
+
+type trackingConn struct {
+	net.Conn
+	closed bool
+}
+
+func (c *trackingConn) Close() error {
+	c.closed = true
+	return c.Conn.Close()
+}
+
+func TestHandleConnClosesConnection(t *testing.T) {
+	pipeConn, peer := net.Pipe()
+	conn := &trackingConn{Conn: pipeConn}
+	defer peer.Close()
+
+	server := New(nil)
+	done := make(chan struct{})
+
+	go func() {
+		server.handleConn(conn)
+		close(done)
+	}()
+
+	_ = peer.Close()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handleConn did not terminate")
+	}
+
+	if !conn.closed {
+		t.Error("connection was not closed by handleConn")
+	}
+}
+
+type recordingLogger struct {
+	messages []string
+}
+
+func (l *recordingLogger) Printf(format string, args ...any) {
+	l.messages = append(l.messages, fmt.Sprintf(format, args...))
+}
+
+type failingConn struct {
+	net.Conn
+	err error
+}
+
+func (c *failingConn) Read([]byte) (int, error) {
+	return 0, c.err
+}
+
+func TestHandleConnLogsReadError(t *testing.T) {
+	pipeConn, peer := net.Pipe()
+	defer peer.Close()
+
+	logger := &recordingLogger{}
+	server := New(logger)
+	conn := &failingConn{Conn: pipeConn, err: errors.New("read failed")}
+	done := make(chan struct{})
+
+	go func() {
+		server.handleConn(conn)
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handleConn did not terminate")
+	}
+
+	if len(logger.messages) != 1 {
+		t.Fatalf("logged messages: got %d, want 1", len(logger.messages))
+	}
+
+	want := "scan error read failed"
+	if logger.messages[0] != want {
+		t.Errorf("logged message: got %q, want %q", logger.messages[0], want)
 	}
 }

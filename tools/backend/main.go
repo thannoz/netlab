@@ -43,6 +43,7 @@ func (s *Server) echo(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintln(w, "\nQuery params:")
 	printSorted(w, r.URL.Query())
+	log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
 }
 
 func main() {

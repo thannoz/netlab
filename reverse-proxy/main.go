@@ -37,7 +37,8 @@ func main() {
 		return
 	}
 
-	p := proxy.New(u, log.New(os.Stderr, "proxy: ", log.LstdFlags))
+	var trip http.RoundTripper
+	p := proxy.New(u, log.New(os.Stderr, "proxy: ", log.LstdFlags), trip)
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%s", *proxyService),

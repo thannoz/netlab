@@ -46,6 +46,20 @@ func (p *Proxy) forwardRequest(r *http.Request, u *url.URL) (*http.Response, err
 	return resp, nil
 }
 
+func (p *Proxy) copyResponse(w http.ResponseWriter, resp *http.Response) {
+	for key, value := range resp.Header {
+		for _, v := range value {
+			w.Header().Add(key, v)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+
+	_, err := io.Copy(w, resp.Body)
+	if err != nil {
+		p.logger.Printf("could not copy %v", err)
+	}
+}
+
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u := *p.target
 	u.Path = r.URL.Path
@@ -65,5 +79,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	p.logger.Printf("%s %s %s -> %s", r.Method, r.RemoteAddr, r.URL, u.String())
 	p.logger.Printf("Backend answered with status %d", resp.StatusCode)
-	fmt.Fprintln(w, resp.Status)
+
+	p.copyResponse(w, resp)
 }

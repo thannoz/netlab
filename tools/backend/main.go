@@ -37,6 +37,10 @@ func statusFromQuery(r *http.Request) int {
 	return code
 }
 
+func (s *Server) health(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *Server) echo(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
 
@@ -72,6 +76,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", server.echo)
+	mux.HandleFunc("/health", server.health)
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", *port),

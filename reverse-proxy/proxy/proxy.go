@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 )
@@ -38,6 +39,13 @@ func (p *Proxy) forwardRequest(r *http.Request, u *url.URL) (*http.Response, err
 		return nil, err
 	}
 	req.Header = r.Header.Clone()
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		if prior := req.Header.Get("X-Forwarded-For"); prior != "" {
+			ip = prior + ", " + ip
+		}
+		req.Header.Set("X-Forwarded-For", ip)
+	}
 
 	resp, err := p.client.RoundTrip(req)
 	if err != nil {
@@ -68,7 +76,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := p.forwardRequest(r, &u)
 	if err != nil {
 		p.logger.Printf("could not forward request %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "bad gateway", http.StatusBadGateway)
 		return
 	}
 	defer func() {

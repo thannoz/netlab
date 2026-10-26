@@ -1,29 +1,43 @@
 package lb
 
 import (
+	"net/http"
 	"net/url"
 
 	"github.com/thannoz/netlab/reverse-proxy/proxy"
 )
 
 type Backend struct {
-	u *url.URL
-	p *proxy.Proxy
+	URL *url.URL
+	p   *proxy.Proxy
 }
 
 type LoadBalancer struct {
-	backend *Backend
+	backends []*Backend
 }
 
-func New(backend *Backend) *LoadBalancer {
+func New(urls []*url.URL, logger proxy.Logger) *LoadBalancer {
+	backends := make([]*Backend, 0, len(urls))
+
+	for _, u := range urls {
+		b := newBackend(u, logger)
+		backends = append(backends, b)
+	}
+
 	return &LoadBalancer{
-		backend: backend,
+		backends: backends,
 	}
 }
 
-func newBackend(url *url.URL, proxy *proxy.Proxy) *Backend {
+func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	lb.backends[0].p.ServeHTTP(w, r)
+}
+
+func newBackend(u *url.URL, logger proxy.Logger) *Backend {
+	p := proxy.New(u, logger, nil)
+
 	return &Backend{
-		u: url,
-		p: proxy,
+		URL: u,
+		p:   p,
 	}
 }

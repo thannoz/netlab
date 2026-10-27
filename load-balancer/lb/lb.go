@@ -3,6 +3,7 @@ package lb
 import (
 	"net/http"
 	"net/url"
+	"sync/atomic"
 
 	"github.com/thannoz/netlab/reverse-proxy/proxy"
 )
@@ -14,6 +15,7 @@ type Backend struct {
 
 type LoadBalancer struct {
 	backends []*Backend
+	next     atomic.Uint64
 }
 
 func New(urls []*url.URL, logger proxy.Logger) *LoadBalancer {
@@ -29,8 +31,16 @@ func New(urls []*url.URL, logger proxy.Logger) *LoadBalancer {
 	}
 }
 
+func (lb *LoadBalancer) nextBackend() *Backend {
+	n := lb.next.Add(1)
+	index := int(n % uint64(len(lb.backends)))
+
+	return lb.backends[index]
+}
+
 func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	lb.backends[0].p.ServeHTTP(w, r)
+	backend := lb.nextBackend()
+	backend.p.ServeHTTP(w, r)
 }
 
 func newBackend(u *url.URL, logger proxy.Logger) *Backend {

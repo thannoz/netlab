@@ -24,7 +24,7 @@ func checkSchemeHost(u *url.URL) error {
 }
 
 func main() {
-	port := flag.String("listen", "8090", "Load Balancer port")
+	port := flag.Int("listen", 8090, "Load Balancer port")
 	backends := flag.String("backends", "http://localhost:9001,http://localhost:9002", "Backend service to load balance to")
 	flag.Parse()
 
@@ -45,12 +45,12 @@ func main() {
 	balancer := lb.New(backendURLs, log.New(os.Stderr, "lb: ", log.LstdFlags))
 
 	srv := http.Server{
-		Addr:              fmt.Sprintf(":%s", *port),
+		Addr:              fmt.Sprintf(":%d", *port),
 		Handler:           balancer,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	log.Printf("Load Balancer listening on port %s", *port)
+	log.Printf("Load Balancer listening on port %d", *port)
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

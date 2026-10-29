@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/thannoz/netlab/load-balancer/lb"
+	lb "github.com/thannoz/netlab/load-balancer/lb"
 )
 
 func checkSchemeHost(u *url.URL) error {
@@ -23,7 +23,7 @@ func checkSchemeHost(u *url.URL) error {
 	return nil
 }
 
-func main() {
+func run() error {
 	port := flag.Int("listen", 8090, "Load Balancer port")
 	backends := flag.String("backends", "http://localhost:9001,http://localhost:9002", "Backend service to load balance to")
 	flag.Parse()
@@ -34,15 +34,16 @@ func main() {
 	for _, u := range urls {
 		parsedURL, err := url.Parse(u)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("parse url %q: %w", u, err)
 		}
 		if err := checkSchemeHost(parsedURL); err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("backend %q: %w", u, err)
 		}
 		backendURLs = append(backendURLs, parsedURL)
 	}
 
 	balancer := lb.New(backendURLs, log.New(os.Stderr, "lb: ", log.LstdFlags))
+	go balancer.HealthCheck(2 * time.Second)
 
 	srv := http.Server{
 		Addr:              fmt.Sprintf(":%d", *port),
@@ -51,8 +52,12 @@ func main() {
 	}
 
 	log.Printf("Load Balancer listening on port %d", *port)
-	if err := srv.ListenAndServe(); err != nil {
+
+	return srv.ListenAndServe()
+}
+
+func main() {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
-
 }

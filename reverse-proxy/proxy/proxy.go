@@ -87,6 +87,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	p.logger.Printf("%s %s %s -> %s", r.Method, r.RemoteAddr, r.URL, u.String())
 	p.logger.Printf("Backend answered with status %d", resp.StatusCode)
+	p.logger.Printf("Raw query: %s\n", u.String())
 
 	p.copyResponse(w, resp)
 }

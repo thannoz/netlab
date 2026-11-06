@@ -1,6 +1,7 @@
 package lb
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -95,4 +96,33 @@ func isAlive(b *Backend) bool {
 	}()
 
 	return resp.StatusCode == http.StatusOK
+}
+
+func checkSchemeHost(u *url.URL) error {
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("invalid url scheme: %s", u.String())
+	}
+	if u.Host == "" {
+		return fmt.Errorf("invalid url host: %s", u.String())
+	}
+	return nil
+}
+
+func ParseURLs(raw ...string) ([]*url.URL, error) {
+	parsedURLs := make([]*url.URL, 0, len(raw))
+	if len(raw) == 0 {
+		return nil, errors.New("no backend urls")
+	}
+
+	for _, u := range raw {
+		parsedURL, err := url.Parse(u)
+		if err != nil {
+			return nil, fmt.Errorf("parse url %q: %w", u, err)
+		}
+		if err := checkSchemeHost(parsedURL); err != nil {
+			return nil, fmt.Errorf("url %q: %w", u, err)
+		}
+		parsedURLs = append(parsedURLs, parsedURL)
+	}
+	return parsedURLs, nil
 }
